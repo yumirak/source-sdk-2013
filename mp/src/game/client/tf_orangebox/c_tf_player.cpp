@@ -11,7 +11,7 @@
 #include "iclientvehicle.h"
 #include "ivieweffects.h"
 #include "input.h"
-#include "ieffects.h"
+#include "IEffects.h"
 #include "fx.h"
 #include "c_basetempentity.h"
 #include "hud_macros.h"
@@ -27,7 +27,7 @@
 #include "tf_weaponbase.h"
 #include "c_tf_playerresource.h"
 #include "toolframework/itoolframework.h"
-#include "tier1/keyvalues.h"
+#include "tier1/KeyValues.h"
 #include "tier0/vprof.h"
 #include "prediction.h"
 #include "effect_dispatch_data.h"
@@ -37,11 +37,10 @@
 #include "view_scene.h"
 #include "c_baseobject.h"
 #include "toolframework_client.h"
-#include "materialsystem/IMaterialVar.h"
 #include "soundenvelope.h"
 #include "voice_status.h"
-#include "ClientEffectPrecacheSystem.h"
-#include "FunctionProxy.h"
+#include "clienteffectprecachesystem.h"
+#include "functionproxy.h"
 #include "toolframework_client.h"
 #include "choreoevent.h"
 #include "vguicenterprint.h"
@@ -55,9 +54,9 @@
 #include "c_team.h"
 #include "collisionutils.h"
 // for spy material proxy
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
 #include "c_tf_team.h"
 
 #if defined( CTFPlayer )
@@ -66,6 +65,8 @@
 
 #include "materialsystem/imesh.h"		//for materials->FindMaterial
 #include "iviewrender.h"				//for view->
+
+#include "cam_thirdperson.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -4,10 +4,14 @@
 //
 //=============================================================================//
 
+#include "cbase.h"
 #ifdef GAME_DLL
-#include "GameStats.h"
+#include "gamestats.h"
 #endif
 #include "tf_gamestats_shared.h"
+
+// memdbgon must be the last include file in a .cpp file!!!
+//#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
