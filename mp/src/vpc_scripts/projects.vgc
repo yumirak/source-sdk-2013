@@ -16,7 +16,16 @@ $Project "captioncompiler"
 
 $Project "client"
 {
+	"game\client\client_hl2.vpc"		[($WIN32||$X360||$POSIX) && $HL2]
+	"game\client\client_dod.vpc"		[($WIN32||$POSIX) && $DOD]
+	"game\client\client_episodic.vpc"	[($WIN32||$X360||$POSIX) && $EPISODIC]
+	"game\client\client_lostcoast.vpc"	[($WIN32||$POSIX) && $LOSTCOAST]
+	// "game\client\client_tf.vpc"			[($WINDOWS||$X360||$POSIX) && $TF]
+	"game\client\client_cstrike.vpc"	[($WIN32||$POSIX) && $CSTRIKE]
+	"game\client\client_portal.vpc"		[($WIN32||$X360||$POSIX) && $PORTAL]
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\client\client_hl1.vpc"		[($WIN32||$POSIX) && $HL1]
+	"game\client\client_hl1mp.vpc"		[($WIN32||$POSIX) && $HL1MP]
 }
 
 $Project "fgdlib"
@@ -41,7 +50,16 @@ $Project "height2normal"
 
 $Project "server"
 {
+	"game\server\server_hl2.vpc"		[($WIN32||$X360||$POSIX) && $HL2]
+	"game\server\server_dod.vpc"		[($WIN32||$POSIX) && $DOD]
+	"game\server\server_episodic.vpc"	[($WIN32||$X360||$POSIX) && $EPISODIC]
+	"game\server\server_lostcoast.vpc"	[($WIN32||$POSIX) && $LOSTCOAST]
+	// "game\server\server_tf.vpc"			[($WINDOWS||$X360||$POSIX) && $TF]
+	"game\server\server_cstrike.vpc"	[($WIN32||$POSIX) && $CSTRIKE]
+	"game\server\server_portal.vpc"		[($WIN32||$X360||$POSIX) && $PORTAL]
 	"game\server\server_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\server\server_hl1.vpc"		[($WIN32||$POSIX) && $HL1]
+	"game\server\server_hl1mp.vpc"		[($WIN32||$POSIX) && $HL1MP]
 }
 
 $Project "mathlib"
