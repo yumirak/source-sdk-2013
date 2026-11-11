@@ -20,6 +20,7 @@ $Games
 	"LOSTCOAST"
 	"PORTAL"
 	"SDK"
+	"TF_ORANGEBOX"
 }
 
 // Makes the VPC scripts work in the SDK's context
