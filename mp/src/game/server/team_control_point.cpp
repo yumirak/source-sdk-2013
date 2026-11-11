@@ -101,7 +101,7 @@ void CTeamControlPoint::Spawn( void )
 		m_iDefaultOwner = TEAM_UNASSIGNED;
 	}
 
-#ifdef TF_DLL
+#if defined ( TF_DLL ) || defined ( TF_ORANGEBOX_DLL )
 	if ( m_iszCaptureStartSound == NULL_STRING )
 	{
 		m_iszCaptureStartSound = AllocPooledString( "Hologram.Start" );
@@ -268,7 +268,7 @@ void CTeamControlPoint::Precache( void )
 		PrecacheScriptSound( STRING( m_iszWarnSound ) );
 	}
 
-#ifdef TF_DLL
+#if defined ( TF_DLL ) || defined ( TF_ORANGEBOX_DLL )
 	PrecacheScriptSound( "Announcer.ControlPointContested" );
 	PrecacheScriptSound( "Announcer.ControlPointContested_Neutral" );
 #endif
