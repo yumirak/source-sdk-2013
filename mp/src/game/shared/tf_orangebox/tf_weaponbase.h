@@ -149,8 +149,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
-	virtual acttable_t *ActivityList( void );
-	virtual int ActivityListCount( void );
+	virtual acttable_t *ActivityList( int &iActivityCount ) OVERRIDE;
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
 	static acttable_t m_acttableMelee[];
@@ -168,6 +167,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 #ifdef CLIENT_DLL
 	C_BaseEntity *GetWeaponForEffect();
+	// Shadows
+	virtual ShadowType_t ShadowCastType( void ) OVERRIDE;
 #endif
 
 	bool CanAttack( void );
@@ -217,6 +218,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int		InternalDrawModel( int flags );
 
 	virtual bool	ShouldPredict();
+	virtual void	PostDataUpdate( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t type );
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual int		GetWorldModelIndex( void );

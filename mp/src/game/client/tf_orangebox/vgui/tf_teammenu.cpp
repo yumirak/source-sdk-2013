@@ -20,7 +20,7 @@
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"
-#include "tf_modelpanel.h"
+#include "basemodelpanel.h"
 #include "tf_teammenu.h"
 #include <convar.h>
 #include "IGameUIFuncs.h" // for key bindings

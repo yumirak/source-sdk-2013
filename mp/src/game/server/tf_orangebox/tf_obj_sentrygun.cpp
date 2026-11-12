@@ -566,22 +566,22 @@ int CObjectSentrygun::DrawDebugTextOverlays(void)
 	{
 		char tempstr[512];
 
-		Q_snprintf( tempstr, sizeof( tempstr ), "Level: %d", m_iUpgradeLevel );
+		Q_snprintf( tempstr, sizeof( tempstr ), "Level: %d", m_iUpgradeLevel.Get() );
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 
-		Q_snprintf( tempstr, sizeof( tempstr ), "Shells: %d / %d", m_iAmmoShells, m_iMaxAmmoShells );
+		Q_snprintf( tempstr, sizeof( tempstr ), "Shells: %d / %d", m_iAmmoShells.Get(), m_iMaxAmmoShells );
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 
 		if ( m_iUpgradeLevel == 3 )
 		{
-			Q_snprintf( tempstr, sizeof( tempstr ), "Rockets: %d / %d", m_iAmmoRockets, m_iMaxAmmoRockets );
+			Q_snprintf( tempstr, sizeof( tempstr ), "Rockets: %d / %d", m_iAmmoRockets.Get(), m_iMaxAmmoRockets );
 			EntityText(text_offset,tempstr,0);
 			text_offset++;
 		}
 
-		Q_snprintf( tempstr, sizeof( tempstr ), "Upgrade metal %d", m_iUpgradeMetal );
+		Q_snprintf( tempstr, sizeof( tempstr ), "Upgrade metal %d", m_iUpgradeMetal.Get() );
 		EntityText(text_offset,tempstr,0);
 		text_offset++;
 
@@ -1026,7 +1026,7 @@ bool CObjectSentrygun::Fire()
 		info.m_vecSpread = vec3_origin;
 		info.m_flDistance = flDistToTarget + 100;
 		info.m_iAmmoType = m_iAmmoType;
-		info.m_iDamage = tf_sentrygun_damage.GetInt();
+		info.m_flDamage = tf_sentrygun_damage.GetFloat();
 
 		FireBullets( info );
 

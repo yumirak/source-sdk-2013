@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro GAMENAME 	"tf"
+$Macro GAMENAME 	"tf_orangebox"
 
 $Include "$SRCDIR\game\client\client_base.vpc"
 
@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;.\tf_orangebox\;.\tf_orangebox\vgui;..\statemachine;$SRCDIR\game\shared\multiplayer;$SRCDIR\game\shared\tf_orangebox\;$BASE"
+		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;.\tf_orangebox\;.\tf_orangebox\vgui;..\statemachine;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf_orangebox\;$BASE"
 		$PreprocessorDefinitions		"$BASE;TF_ORANGEBOX_CLIENT_DLL"
 	}
 }
@@ -43,6 +43,8 @@ $Project "Client (TF)"
 		$File	"$SRCDIR\game\shared\teamplay_round_timer.h"
 		$File	"TeamBitmapImage.cpp"
 		$File	"voice_menu.cpp"
+
+		$File	"c_team_train_watcher.cpp"
 
 		$Folder	"TF"
 		{
@@ -142,8 +144,8 @@ $Project "Client (TF)"
 			$File	"tf_orangebox\tf_hud_winpanel.h"
 			$File	"tf_orangebox\vgui\tf_imagepanel.cpp"
 			$File	"tf_orangebox\vgui\tf_imagepanel.h"
-			$File	"tf_orangebox\vgui\tf_modelpanel.cpp"
-			$File	"tf_orangebox\vgui\tf_modelpanel.h"
+			// $File	"tf_orangebox\vgui\tf_modelpanel.cpp" // replaced by basemodelpanel.cpp
+			// $File	"tf_orangebox\vgui\tf_modelpanel.h"
 			$File	"tf_orangebox\tf_input_main.cpp"
 			$File	"tf_orangebox\tf_presence.cpp"
 			$File	"tf_orangebox\tf_presence.h"

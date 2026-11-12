@@ -1402,6 +1402,36 @@ void CTFWeaponBase::WeaponReset( void )
 
 //-----------------------------------------------------------------------------
 // Purpose:
+// Input  : updateType -
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::PostDataUpdate( DataUpdateType_t updateType )
+{
+	// We need to do this before the C_BaseAnimating code starts to drive
+	// clientside animation sequences on this model, which will be using bad sequences for the world model.
+	int iDesiredModelIndex = 0;
+	C_BasePlayer *pOwner = ToBasePlayer(GetOwner());
+	if ( !pOwner->ShouldDrawThisPlayer() )
+	{
+		iDesiredModelIndex = m_iViewModelIndex;
+	}
+	else
+	{
+		iDesiredModelIndex = GetWorldModelIndex();
+
+		// Our world models never animate
+		SetSequence( 0 );
+	}
+
+	if ( GetModelIndex() != iDesiredModelIndex )
+	{
+		SetModelIndex( iDesiredModelIndex );
+	}
+
+	BaseClass::PostDataUpdate( updateType );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
 // ----------------------------------------------------------------------------
 void CTFWeaponBase::OnPreDataChanged( DataUpdateType_t type )
 {
@@ -1715,7 +1745,7 @@ acttable_t CTFWeaponBase::m_acttablePDA[] =
 
 ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
-acttable_t *CTFWeaponBase::ActivityList( void )
+acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
@@ -1745,56 +1775,27 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	case TF_WPN_TYPE_PRIMARY:
 	default:
 		pTable = m_acttablePrimary;
+		iActivityCount = ARRAYSIZE(m_acttablePrimary);
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
+		iActivityCount = ARRAYSIZE(m_acttableSecondary);
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
+		iActivityCount = ARRAYSIZE(m_acttableMelee);
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
+		iActivityCount = ARRAYSIZE(m_acttableBuilding);
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
+		iActivityCount = ARRAYSIZE(m_acttablePDA);
 		break;
 	}
 
 	return pTable;
-}
-
-int CTFWeaponBase::ActivityListCount( void )
-{
-	int iWeaponRole = 0;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-	int iSize = 0;
-
-	switch( iWeaponRole )
-	{
-	case TF_WPN_TYPE_PRIMARY:
-	default:
-		iSize = ARRAYSIZE(m_acttablePrimary);
-		break;
-	case TF_WPN_TYPE_SECONDARY:
-		iSize = ARRAYSIZE(m_acttableSecondary);
-		break;
-	case TF_WPN_TYPE_MELEE:
-		iSize = ARRAYSIZE(m_acttableMelee);
-		break;
-	case TF_WPN_TYPE_BUILDING:
-		iSize = ARRAYSIZE(m_acttableBuilding);
-		break;
-	case TF_WPN_TYPE_PDA:
-		iSize = ARRAYSIZE(m_acttablePDA);
-		break;
-	}
-
-	return iSize;
 }
 
 
@@ -1840,6 +1841,18 @@ C_BaseEntity *CTFWeaponBase::GetWeaponForEffect()
 		return pLocalPlayer->GetViewModel();
 
 	return this;
+}
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	// Some weapons (fists) don't actually get set to NODRAW when holstered so we
+	// need some extra checks
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) || m_iState != WEAPON_IS_ACTIVE )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
 }
 #endif
 

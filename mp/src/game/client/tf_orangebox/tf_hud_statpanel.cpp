@@ -476,13 +476,13 @@ bool CTFStatPanel::ReadStats( void )
 		CDmxElement *pClass = aClassStatsList[ i ];
 		ClassStats_t &stat = m_aClassStats[ i ];
 
-		pClass->UnpackIntoStructure( &stat, s_ClassStatsUnpack );
+		pClass->UnpackIntoStructure( &stat, sizeof(stat), s_ClassStatsUnpack );
 
 		CDmxElement *pAccumulated = pClass->GetValue< CDmxElement * >( "accumulated" );
-		pAccumulated->UnpackIntoStructure( &stat.accumulated, s_RoundStatsUnpack );
+		pAccumulated->UnpackIntoStructure( &stat.accumulated, sizeof(stat.accumulated), s_RoundStatsUnpack );
 
 		CDmxElement *pMax = pClass->GetValue< CDmxElement * >( "max" );
-		pMax->UnpackIntoStructure( &stat.max, s_RoundStatsUnpack );
+		pMax->UnpackIntoStructure( &stat.max, sizeof(stat.max), s_RoundStatsUnpack );
 	}
 
 	CleanupDMX( pPlayerStats );

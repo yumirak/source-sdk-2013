@@ -394,6 +394,7 @@ CTFGameRules::CTFGameRules()
 	m_iPrevRoundState = -1;
 	m_iCurrentRoundState = -1;
 	m_iCurrentMiniRoundMask = 0;
+	m_flCapInProgressBuffer = 0.f;
 
 	// Lets execute a map specific cfg file
 	// ** execute this after server.cfg!
@@ -455,7 +456,7 @@ bool CTFGameRules::CanChangelevelBecauseOfTimeLimit( void )
 	// we're playing mini-rounds, and the master says we need to play all of them before changing (for maps like Dustbowl)
 	if ( !m_bForceMapReset && pMaster && pMaster->PlayingMiniRounds() && pMaster->ShouldPlayAllControlPointRounds() )
 	{
-		if ( pMaster->FindControlPointRoundToPlay() )
+		if ( pMaster->NumPlayableControlPointRounds() )
 		{
 			return false;
 		}
@@ -1162,26 +1163,6 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 			return true;
 		}
-		else if ( FStrEq( pcmd, "freezecam_taunt" ) )
-		{	
-			// let's check this came from the client .dll and not the console
-			int iCmdPlayerID = pPlayer->GetUserID();
-			unsigned short mask = UTIL_GetAchievementEventMask();
-
-			int iAchieverIndex = atoi( args[1] ) ^ mask;
-			int code = ( iCmdPlayerID ^ iAchieverIndex ) ^ mask;
-			if ( code == atoi( args[2] ) )
-			{
-				CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
-				if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
-				{
-					int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-					pAchiever->AwardAchievement( g_TauntCamAchievements[ iClass ] );
-				}
-			}
-
-			return true;
-		}
 		else if( pPlayer->ClientCommand( args ) )
 		{
             return true;
@@ -1318,7 +1299,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		BaseClass::GoToIntermission();
 	}
 
-	bool CTFGameRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
+	bool CTFGameRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info )
 	{
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
@@ -1341,7 +1322,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
-		return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker );
+		return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker, info );
 	}
 
 Vector DropToGround( 
@@ -1659,6 +1640,34 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues )
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer( CBaseEntity::Instance( pEntity ) );
+
+	if ( !pTFPlayer )
+		return;
+
+	char const *pszCommand = pKeyValues->GetName();
+	if ( pszCommand && pszCommand[0] )
+	{
+		if ( FStrEq( pszCommand, "FreezeCamTaunt" ) )
+		{
+			CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByUserId( pKeyValues->GetInt( "achiever" ) ) );
+			if ( pAchiever )
+			{
+				int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
+				if ( g_TauntCamAchievements[iClass] != 0 )
+				{
+					pAchiever->AwardAchievement( g_TauntCamAchievements[iClass] );
+				}
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return true if the specified player can carry any more of the ammo type
 //-----------------------------------------------------------------------------
 bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
@@ -1873,7 +1882,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	{
 		// if prefix matches, advance the string pointer past the prefix
 		int len = Q_strlen( prefix[i] );
-		if ( strncmp( killer_weapon_name, prefix[i], len ) == 0 )
+		if ( Q_strnicmp( killer_weapon_name, prefix[i], len ) == 0 )
 		{
 			killer_weapon_name += len;
 			break;
@@ -2364,10 +2373,18 @@ bool CTFGameRules::TimerMayExpire( void )
 	for ( int iPoint = 0; iPoint < iNumControlPoints; iPoint ++ )
 	{
 		if ( ObjectiveResource()->GetCappingTeam(iPoint) )
+		{
+			m_flCapInProgressBuffer = gpGlobals->curtime + 0.1f;
 			return false;
+		}
 	}
 
-	return true;
+	// This delay prevents an order-of-operations issue with caps that
+	// fire an AddTime output, and round timers' OnFinished output
+	if ( m_flCapInProgressBuffer >= gpGlobals->curtime )
+		return false;
+
+	return BaseClass::TimerMayExpire();
 }
 
 //-----------------------------------------------------------------------------
@@ -2828,7 +2845,7 @@ bool CTFGameRules::ShouldCollide( int collisionGroup0, int collisionGroup1 )
 	if ( collisionGroup0 > collisionGroup1 )
 	{
 		// swap so that lowest is always first
-		swap( collisionGroup0, collisionGroup1 );
+		V_swap( collisionGroup0, collisionGroup1 );
 	}
 	
 	//Don't stand on COLLISION_GROUP_WEAPONs

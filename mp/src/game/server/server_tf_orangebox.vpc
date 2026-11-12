@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro GAMENAME 	"tf"
+$Macro GAMENAME 	"tf_orangebox"
 
 $Include "$SRCDIR\game\server\server_base.vpc"
 
@@ -18,7 +18,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2;.\tf;.\tf_orangebox\vgui;$SRCDIR\statemachine;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2;.\tf_orangebox\;.\tf_orangebox\vgui;$SRCDIR\statemachine;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf_orangebox\"
 		$PreprocessorDefinitions		"$BASE;TF_ORANGEBOX_DLL"
 	}
 }
@@ -58,6 +58,8 @@ $Project "Server (TF)"
 		$File	"$SRCDIR\game\shared\touchlink.h"
 		$File	"trigger_area_capture.cpp"
 		$File	"trigger_area_capture.h"
+
+		$File	"team_train_watcher.cpp"
 
 		$Folder	"TF"
 		{

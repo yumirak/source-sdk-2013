@@ -51,8 +51,8 @@ public:
 	void PlayRivalrySounds( int iKillerIndex, int iVictimIndex, int iType  );
 
 protected:	
-	virtual void OnGameEvent( IGameEvent *event, DeathNoticeItem &msg );
-	virtual Color GetTeamColor( int iTeamNumber );
+	virtual void OnGameEvent( IGameEvent *event, int iDeathNoticeMsg );
+	virtual Color GetTeamColor( int iTeamNumber, bool bLocalPlayerInvolved /* = false */ );
 
 private:
 	void AddAdditionalMsg( int iKillerID, int iVictimID, const char *pMsgKey );
@@ -116,9 +116,10 @@ void CTFHudDeathNotice::PlayRivalrySounds( int iKillerIndex, int iVictimIndex, i
 //			displayed.  This method can examine the event and death notice and
 //			make game-specific tweaks to it before it is displayed
 //-----------------------------------------------------------------------------
-void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, DeathNoticeItem &msg )
+void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 {
 	const char *pszEventName = event->GetName();
+	DeathNoticeItem &msg = m_DeathNotices[ iDeathNoticeMsg ];
 
 	if ( FStrEq( pszEventName, "player_death" ) || FStrEq( pszEventName, "object_destroyed" ) )
 	{
@@ -282,7 +283,7 @@ void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const ch
 //-----------------------------------------------------------------------------
 // Purpose: returns the color to draw text in for this team.  
 //-----------------------------------------------------------------------------
-Color CTFHudDeathNotice::GetTeamColor( int iTeamNumber )
+Color CTFHudDeathNotice::GetTeamColor( int iTeamNumber, bool bLocalPlayerInvolved /* = false */ )
 {
 	switch ( iTeamNumber )
 	{

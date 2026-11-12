@@ -172,7 +172,7 @@ public:
 
 	IRagdoll* GetIRagdoll() const;
 
-	void ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName );
+	void ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName );
 
 	void ClientThink( void );
 	void StartFadeOut( float fDelay );
@@ -301,7 +301,7 @@ void C_TFRagdoll::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeight
 //			iDamageType - 
 //			*pCustomImpactName - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName )
+void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName )
 {
 	VPROF( "C_TFRagdoll::ImpactTrace" );
 	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
@@ -1204,6 +1204,8 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	
 	BaseClass::OnDataChanged( updateType );
 
+	UpdateVisibility();
+
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
 		SetNextClientThink( CLIENT_THINK_ALWAYS );
@@ -1713,6 +1715,9 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	m_TauntCameraData.m_vecHullMax.Init( 9.0f, 9.0f, 9.0f );
 
 	QAngle vecCameraOffset( tf_tauntcam_pitch.GetFloat(), tf_tauntcam_yaw.GetFloat(), tf_tauntcam_dist.GetFloat() );
+
+	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( tf_tauntcam_dist.GetFloat(), 0.0f, 0.0f ) );
+	g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	::input->CAM_ToThirdPerson();
 	ThirdPersonSwitch( true );
 	::input->CAM_SetCameraThirdData( &m_TauntCameraData, vecCameraOffset );
@@ -1731,11 +1736,13 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;	
 
-	Vector vecOffset;
-	::input->CAM_GetCameraOffset( vecOffset );
+	Vector vecOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
+
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );
 
+	g_ThirdPersonManager.SetDesiredCameraOffset( vec3_origin );
+	g_ThirdPersonManager.SetOverridingThirdPerson( false );
 	::input->CAM_ToFirstPerson();
 	ThirdPersonSwitch( false );
 	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
@@ -2542,14 +2549,25 @@ static Vector WALL_MAX(WALL_OFFSET,WALL_OFFSET,WALL_OFFSET);
 void C_TFPlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float& fov)
 {
 	CBaseEntity	* killer = GetObserverTarget();
+	C_BaseAnimating *pKillerAnimating = killer ? killer->GetBaseAnimating() : NULL;
 
 	// Swing to face our killer within half the death anim time
 	float interpolation = ( gpGlobals->curtime - m_flDeathTime ) / (TF_DEATH_ANIMATION_TIME * 0.5);
 	interpolation = clamp( interpolation, 0.0f, 1.0f );
 	interpolation = SimpleSpline( interpolation );
 
-	m_flObserverChaseDistance += gpGlobals->frametime*48.0f;
-	m_flObserverChaseDistance = clamp( m_flObserverChaseDistance, 16, CHASE_CAM_DISTANCE );
+	float flMinChaseDistance = CHASE_CAM_DISTANCE_MIN;
+	float flMaxChaseDistance = CHASE_CAM_DISTANCE_MAX;
+
+	if ( pKillerAnimating )
+	{
+		float flScaleSquared = pKillerAnimating->GetModelScale() * pKillerAnimating->GetModelScale();
+		flMinChaseDistance *= flScaleSquared;
+		flMaxChaseDistance *= flScaleSquared;
+	}
+
+	m_flObserverChaseDistance += gpGlobals->frametime * 48.0f;
+	m_flObserverChaseDistance = clamp( m_flObserverChaseDistance, flMinChaseDistance, flMaxChaseDistance );
 
 	QAngle aForward = eyeAngles = EyeAngles();
 	Vector origin = EyePosition();			
